@@ -20,3 +20,52 @@ rad.json
 *.flf
 #Test results file
 TestResults.xml
+
+
+# Compiled class files
+*.class
+
+# Log files
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# IDE-specific files
+/.idea/
+/.vscode/
+/eclipse/
+/*.iml
+
+# Maven directories
+/target/
+/build/
+
+# Gradle directories
+/.gradle/
+/build/
+
+# Node.js directories (if JavaScript is used alongside)
+/node_modules/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+
+# Generated files
+*.jar
+*.war
+*.ear
+
+# Backup files
+*.bak
+*.swp
+*.swo
+
+# Other ignored files
+out/
+*.~*
