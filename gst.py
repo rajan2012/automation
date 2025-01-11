@@ -75,6 +75,22 @@ def select_options_and_search(driver):
         search_button.click()
         print("Clicked Search button")
 
+        time.sleep(10)
+
+        view_button = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//button[@class='btn btn-primary smallbutton' and contains(@data-ng-click, 'page_rtp')]"))
+        )
+        driver.execute_script("arguments[0].click();", view_button)
+        print("Clicked VIEW button")
+
+        download_button = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//button[@class='btn btn-primary' and contains(@data-ng-click, 'generateNILGstr1Pdf')]"))
+        )
+        driver.execute_script("arguments[0].click();", download_button)
+        print("Clicked DOWNLOAD FILED (PDF) button")
+
     except Exception as e:
         print(f"An error occurred: {e}")
 
