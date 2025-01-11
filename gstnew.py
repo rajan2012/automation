@@ -171,22 +171,29 @@ def select_options_and_search(driver,index):
         print(f"An error occurred: {e}")
 
 
-def gst_login(username,password,index):
-    chrome_options = Options()
-    chrome_options.add_experimental_option("detach", True)
-    driver = webdriver.Chrome(options=chrome_options)
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
 
+
+def gst_login(username, password, index, driver):
     try:
         driver.get("https://services.gst.gov.in/services/login")
         driver.maximize_window()
         time.sleep(3)
 
+        # Enter credentials
         driver.find_element(By.NAME, "user_name").send_keys(username)
         driver.find_element(By.ID, "user_pass").send_keys(password)
 
         print("Please enter the captcha manually.")
         time.sleep(20)
 
+        # Click the login button
         login_button = WebDriverWait(driver, 30).until(
             EC.element_to_be_clickable((By.CSS_SELECTOR, "button[type='submit']"))
         )
@@ -197,25 +204,22 @@ def gst_login(username,password,index):
 
         time.sleep(7)
 
+        # Navigate to the dashboard
         dashboard_link = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((By.CSS_SELECTOR, '[title="Return Dashboard"]'))
         )
-
-        # Scroll into view if necessary and click on it
         ActionChains(driver).move_to_element(dashboard_link).perform()
         dashboard_link.click()
 
-        # Verify that the navigation was successful
         print("New page title:", driver.title)
         print("New page URL:", driver.current_url)
 
         time.sleep(3)
 
-        #select_financial_year_quarter_and_period(driver)
-        select_options_and_search(driver,index)
+        # Select options and perform actions
+        select_options_and_search(driver, index)
 
-        #logout
-        # Click on the user dropdown to reveal options
+        # Logout process
         user_dropdown = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable(
                 (By.XPATH, "//a[contains(@class, 'dropdown-toggle') and contains(@data-original-title, '')]"))
@@ -225,16 +229,15 @@ def gst_login(username,password,index):
 
         time.sleep(2)  # Wait for the dropdown to expand
 
-        # Click on the Logout link
         logout_link = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((By.XPATH, "//a[contains(@href, 'logout')]"))
         )
         driver.execute_script("arguments[0].click();", logout_link)
         print("Clicked Logout link")
 
-
-
-
+        # After logout, return to the login page for the next login
+        driver.get("https://services.gst.gov.in/services/login")
+        print("Navigating back to the login page.")
 
     except Exception as e:
         print(f"An error occurred: {e}")
@@ -242,15 +245,20 @@ def gst_login(username,password,index):
     print("Browser will remain open. Close it manually when done.")
 
 
-# Assuming you have already logged in and navigated to the correct page
-# Call this function after successful login
-
-
-
+# Function to read the input file and process each line
 with open('input.txt', 'r') as file:
+    # Set up Chrome WebDriver once
+    chrome_options = Options()
+    chrome_options.add_experimental_option("detach", True)
+    driver = webdriver.Chrome(options=chrome_options)
+
     for line in file:
         username, password, index = line.strip().split(',')
 
-        # Call gst_login with username and password; index is not used in this example.
-        print(f"username {username} for index {1}")
-        gst_login(username.strip(), password.strip(),index)
+        # Call gst_login with username, password, and index (use the same driver instance)
+        print(f"Logging in with username: {username} for index {index}")
+        gst_login(username.strip(), password.strip(), index, driver)
+
+    # Close the driver when all operations are done
+    driver.quit()
+
