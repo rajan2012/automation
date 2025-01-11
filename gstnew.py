@@ -4,6 +4,8 @@ from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from pathlib import Path
+import os
 
 # Example: Creating a WebDriver instance with an extended timeout
 options = webdriver.ChromeOptions()
@@ -45,8 +47,8 @@ def wait_for_dropdown(driver, dropdown_name, retries=3):
 def select_options_and_search(driver,index):
     try:
         #go through all for quarter
-        #for just first qurarter -0,1 and likewise 
-        for q_index in range(4):  # Iterate over quarters
+        #for just first qurarter -0,1 and likewise
+        for q_index in range(3,4):  # Iterate over quarters
             time.sleep(2)
 
             # Select Financial Year
@@ -57,14 +59,14 @@ def select_options_and_search(driver,index):
             # 1 -3 year back
             select_fin.select_by_index(index)
             selected_fin = select_fin.first_selected_option.text
-            print(f"Successfully selected financial year: {selected_fin}")
+            #print(f"Successfully selected financial year: {selected_fin}")
             time.sleep(3)
 
             # Select Quarter
             select_quarter = wait_for_dropdown(driver, "quarter")
             select_quarter.select_by_index(q_index)
             selected_quarter = select_quarter.first_selected_option.text
-            print(f"Selected quarter: {selected_quarter}")
+            #print(f"Selected quarter: {selected_quarter}")
             time.sleep(3)
 
             # Select Period
@@ -74,11 +76,11 @@ def select_options_and_search(driver,index):
             #to select one specific month
             #replace by(0,1)-for 1st month
             #1,2 -for second and likewise
-            for p_index in range(3):  # Iterate over periods
+            for p_index in range(2,3):  # Iterate over periods
                 time.sleep(5)
                 select_period.select_by_index(p_index)
                 selected_period = select_period.first_selected_option.text
-                print(f"Selected period: {selected_period}")
+                #print(f"Selected period: {selected_period}")
                 time.sleep(3)
 
                 # Click Search Button
@@ -101,7 +103,7 @@ def select_options_and_search(driver,index):
                         EC.element_to_be_clickable((By.XPATH, "//button[@class='btn btn-primary' and contains(@data-ng-click, 'generateNILGstr1Pdf')]"))
                     )
                     driver.execute_script("arguments[0].click();", download_button)
-                    print("Clicked DOWNLOAD FILED (PDF) button")
+                    #print("Clicked DOWNLOAD FILED (PDF) button")
                     print(f"Download 2b view for 2023-2024, {selected_quarter}, {selected_period}")
                     time.sleep(4)
                     driver.back()
@@ -145,18 +147,19 @@ def select_options_and_search(driver,index):
                 time.sleep(5)
 
                 # Ensure elements are reloaded
+                print("resetetting again")
                 select_fin = wait_for_dropdown(driver, "fin")
                 select_fin.select_by_index(1)
-                print("Financial year reset")
+                #print("Financial year reset")
                 time.sleep(2)
 
                 select_quarter = wait_for_dropdown(driver, "quarter")
                 select_quarter.select_by_index(q_index)
-                print("Quarter reset")
+                #print("Quarter reset")
 
                 select_period = wait_for_dropdown(driver, "mon")
                 select_period.select_by_index(p_index)
-                print("Period reset")
+                #print("Period reset")
                 time.sleep(2)
 
                 # Click Search Button after reset
@@ -173,7 +176,7 @@ def select_options_and_search(driver,index):
                     )
                 )
                 driver.execute_script("arguments[0].click();", download_button)
-                print("Clicked Download button")
+                #print("Clicked Download button")
                 print(f"Download 3b for {selected_fin}, {selected_quarter}, {selected_period}")
                 time.sleep(3)
 
@@ -196,7 +199,7 @@ def gst_login(username, password, index, driver):
         time.sleep(20)
 
         # Click the login button
-        login_button = WebDriverWait(driver, 10).until(
+        login_button = WebDriverWait(driver, 5).until(
             EC.element_to_be_clickable((By.CSS_SELECTOR, "button[type='submit']"))
         )
         login_button.click()
@@ -259,6 +262,31 @@ with open('input.txt', 'r') as file:
 
         # Call gst_login with username, password, and index (use the same driver instance)
         print(f"Logging in with username: {username} for index {index}")
+        # File handling: Create a file if it doesn't exist
+        downloads_path = str(Path.home() / "Downloads")  # Get the Downloads folder
+        user_folder_path = os.path.join(str(Path.home() / "Downloads"), f"{username}_gst")
+
+        if not os.path.exists(user_folder_path):
+            os.makedirs(user_folder_path)
+            print(f"Folder created: {user_folder_path}")
+        else:
+            print(f"Folder already exists: {user_folder_path}")
+
+        # Set up a custom download directory for each user
+        downloads_path = str(Path.home() / "Downloads")  # Get the Downloads folder
+        user_download_dir = os.path.join(downloads_path, f"{username}_gst")
+
+        # Configure Chrome WebDriver options
+        chrome_options = Options()
+        prefs = {
+        "download.default_directory": user_download_dir,  # Set default download directory
+        "download.prompt_for_download": False,  # Disable download prompts
+        "directory_upgrade": True,  # Allow overwriting files in the directory
+        }
+        chrome_options.add_experimental_option("prefs", prefs)
+        chrome_options.add_experimental_option("detach", True)
+        driver = webdriver.Chrome(options=chrome_options)
+
         gst_login(username.strip(), password.strip(), index, driver)
 
     # Close the driver when all operations are done
