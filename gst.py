@@ -45,15 +45,26 @@ def gst_login():
         print("New page title:", driver.title)
         print("New page URL:", driver.current_url)
 
-        
+        year="2023-2024"
 
-       # driver.get("https://services.gst.gov.in/services/auth/quicklinks/returns")
-        #print("Navigated to Returns first Dashboard")
-        #time.sleep(20)
-        #driver.get("https://return.gst.gov.in/returns/auth/dashboard")
-        #print("Navigated to Returns 2nd Dashboard")
+        fin_dropdown = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.NAME, "fin"))
+        )
 
-    ##navigate through section to reach return dashboard
+        # Create a Select object
+        select = Select(fin_dropdown)
+
+        # Select by visible text (which matches the label in this case)
+        #select.select_by_visible_text(year)
+
+        print(f"Successfully selected financial year {year}")
+
+        # Select the option by its visible text
+        # select.select_by_visible_text("2023-2024")
+
+        select.select_by_index(2)
+        #select.select_by_value("object:175")
+
 
     except Exception as e:
         print(f"An error occurred: {e}")
