@@ -8,10 +8,22 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import StaleElementReferenceException
 import time
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+
+# Example: Creating a WebDriver instance with an extended timeout
+options = webdriver.ChromeOptions()
+
+# Optional: Add more options if needed
+options.add_argument("--start-maximized")
+
+# Adjust desired capabilities
+caps = DesiredCapabilities().CHROME
+caps["pageLoadStrategy"] = "normal"  # Ensures full page load before timeout
+
 
 def select_options_and_search(driver):
     try:
-        for q_index in range(1):  # Iterate over quarters (adjust range as needed)
+        for q_index in range(3,4):  # Iterate over quarters (adjust range as needed)
             # Select Financial Year
             fin_dropdown = WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.NAME, "fin"))
@@ -37,7 +49,7 @@ def select_options_and_search(driver):
                 EC.presence_of_element_located((By.NAME, "mon"))
             )
             select_period = Select(period_dropdown)
-            for p_index in range(2):  # Iterate over periods (adjust range as needed)
+            for p_index in range(3):  # Iterate over periods (adjust range as needed)
                 select_period.select_by_index(p_index)
                 selected_period = select_period.first_selected_option.text
                 print(f"Selected period: {selected_period}")
@@ -49,7 +61,7 @@ def select_options_and_search(driver):
                 )
                 search_button.click()
                 print("Clicked Search button")
-                time.sleep(5)
+                #time.sleep(7)
 
                 # Handle View Button
                 view_button = WebDriverWait(driver, 10).until(
@@ -65,7 +77,9 @@ def select_options_and_search(driver):
                     )
                     driver.execute_script("arguments[0].click();", download_button)
                     print("Clicked DOWNLOAD FILED (PDF) button")
+                    print(f"Download 2b view for 2023-2024,{selected_quarter},{selected_period}")
                     driver.back()
+                    time.sleep(7)
                     print("Navigated back to the previous page")
                 except Exception as e:
                     print(f"DOWNLOAD FILED (PDF) button not found: {e}")
@@ -84,18 +98,23 @@ def select_options_and_search(driver):
                         )
                         driver.execute_script("arguments[0].click();", download_pdf_button)
                         print("Clicked DOWNLOAD (PDF) button")
+                        print(f"Download 2b view summary for 2023-2024,{selected_quarter},{selected_period}")
                         driver.back()
+                        time.sleep(3)
                         print("Navigated back to the previous page")
                         driver.back()
+                        time.sleep(7)
                         print("Navigated back to the previous page")
                     except Exception as inner_exception:
                         print(f"Error in VIEW SUMMARY workflow: {inner_exception}")
+                        time.sleep(5)
 
+                time.sleep(10)
                 # Ensure elements are reloaded
                 WebDriverWait(driver, 15).until(
                     EC.presence_of_element_located((By.NAME, "fin"))
                 )
-
+                #time.sleep(10)
                 # Reset dropdowns after navigation
                 print("Resetting dropdown selections...")
                 fin_dropdown = WebDriverWait(driver, 10).until(
@@ -128,13 +147,15 @@ def select_options_and_search(driver):
                 print("Clicked Search button after reset")
 
                 # Find and click the Download button
-                download_button = WebDriverWait(driver, 6).until(
+                download_button = WebDriverWait(driver, 10).until(
                     EC.element_to_be_clickable(
                         (By.XPATH,
                          "//button[@class='btn btn-primary pull-right' and @data-ng-click='downloadGSTR3Bpdf()']"))
                 )
                 driver.execute_script("arguments[0].click();", download_button)
                 print("Clicked Download button")
+                print(f"Download 3b for {selected_fin},{selected_quarter},{selected_period}")
+                time.sleep(7)
 
 
 
