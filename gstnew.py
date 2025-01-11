@@ -37,7 +37,7 @@ def select_options_and_search(driver):
                 EC.presence_of_element_located((By.NAME, "mon"))
             )
             select_period = Select(period_dropdown)
-            for p_index in range(1):  # Iterate over periods (adjust range as needed)
+            for p_index in range(2):  # Iterate over periods (adjust range as needed)
                 select_period.select_by_index(p_index)
                 selected_period = select_period.first_selected_option.text
                 print(f"Selected period: {selected_period}")
