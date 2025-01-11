@@ -1,13 +1,8 @@
 
-from selenium.webdriver import ActionChains
-from selenium.webdriver.chrome.options import Options
+
 from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import Select
-from selenium.common.exceptions import StaleElementReferenceException
-import time
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 # Example: Creating a WebDriver instance with an extended timeout
@@ -49,11 +44,17 @@ def wait_for_dropdown(driver, dropdown_name, retries=3):
 
 def select_options_and_search(driver,index):
     try:
-        for q_index in range(3,4):  # Iterate over quarters
-            time.sleep(6)
+        #go through all for quarter
+        #for just first qurarter -0,1 and likewise 
+        for q_index in range(4):  # Iterate over quarters
+            time.sleep(2)
 
             # Select Financial Year
             select_fin = wait_for_dropdown(driver, "fin")
+            #0 -current year
+            # 1 -previous year
+            # 1 -2 year back
+            # 1 -3 year back
             select_fin.select_by_index(index)
             selected_fin = select_fin.first_selected_option.text
             print(f"Successfully selected financial year: {selected_fin}")
@@ -68,7 +69,12 @@ def select_options_and_search(driver,index):
 
             # Select Period
             select_period = wait_for_dropdown(driver, "mon")
-            for p_index in range(1,2):  # Iterate over periods
+            #3 means
+            #go through all months in each quater
+            #to select one specific month
+            #replace by(0,1)-for 1st month
+            #1,2 -for second and likewise
+            for p_index in range(3):  # Iterate over periods
                 time.sleep(5)
                 select_period.select_by_index(p_index)
                 selected_period = select_period.first_selected_option.text
@@ -99,7 +105,9 @@ def select_options_and_search(driver,index):
                     print(f"Download 2b view for 2023-2024, {selected_quarter}, {selected_period}")
                     time.sleep(4)
                     driver.back()
-                    time.sleep(10)
+                    time.sleep(3)
+                    driver.refresh()
+
                     WebDriverWait(driver, 10).until(EC.staleness_of(download_button))  # Wait for page reload
                     print("Navigated back to the previous page")
                 except Exception as e:
@@ -126,6 +134,8 @@ def select_options_and_search(driver,index):
                         WebDriverWait(driver, 10).until(EC.staleness_of(download_pdf_button))  # Wait for page reload
                         print("Navigated back to the previous page")
                         driver.back()
+                        time.sleep(3)
+                        driver.refresh()
                         time.sleep(10)
                         WebDriverWait(driver, 10).until(EC.staleness_of(view_summary_button))  # Wait for page reload
                         print("Navigated back to the previous page")
@@ -165,19 +175,11 @@ def select_options_and_search(driver,index):
                 driver.execute_script("arguments[0].click();", download_button)
                 print("Clicked Download button")
                 print(f"Download 3b for {selected_fin}, {selected_quarter}, {selected_period}")
-                time.sleep(7)
+                time.sleep(3)
 
     except Exception as e:
         print(f"An error occurred: {e}")
 
-
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-import time
 
 
 def gst_login(username, password, index, driver):
@@ -194,7 +196,7 @@ def gst_login(username, password, index, driver):
         time.sleep(20)
 
         # Click the login button
-        login_button = WebDriverWait(driver, 30).until(
+        login_button = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((By.CSS_SELECTOR, "button[type='submit']"))
         )
         login_button.click()
