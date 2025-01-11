@@ -4,6 +4,7 @@ from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from selenium.webdriver.chrome.options import Options
 
 # Example: Creating a WebDriver instance with an extended timeout
 options = webdriver.ChromeOptions()
@@ -19,6 +20,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
 import time
+import os
+from pathlib import Path
 
 
 def wait_for_dropdown(driver, dropdown_name, retries=3):
@@ -46,7 +49,7 @@ def select_options_and_search(driver,index):
     try:
         #go through all for quarter
         #for just first qurarter -0,1 and likewise
-        for q_index in range(4):  # Iterate over quarters
+        for q_index in range(3,4):  # Iterate over quarters
             time.sleep(2)
 
             # Select Financial Year
@@ -74,7 +77,7 @@ def select_options_and_search(driver,index):
             #to select one specific month
             #replace by(0,1)-for 1st month
             #1,2 -for second and likewise
-            for p_index in range(3):  # Iterate over periods
+            for p_index in range(2,3):  # Iterate over periods
                 time.sleep(5)
                 select_period.select_by_index(p_index)
                 selected_period = select_period.first_selected_option.text
@@ -105,8 +108,9 @@ def select_options_and_search(driver,index):
                     print(f"Download 2b view for 2023-2024, {selected_quarter}, {selected_period}")
                     time.sleep(4)
                     driver.back()
-                    time.sleep(3)
+                    time.sleep(5)
                     driver.refresh()
+                    time.sleep(10)
 
                     WebDriverWait(driver, 10).until(EC.staleness_of(download_button))  # Wait for page reload
                     print("Navigated back to the previous page")
@@ -134,7 +138,7 @@ def select_options_and_search(driver,index):
                         WebDriverWait(driver, 10).until(EC.staleness_of(download_pdf_button))  # Wait for page reload
                         print("Navigated back to the previous page")
                         driver.back()
-                        time.sleep(3)
+                        time.sleep(5)
                         driver.refresh()
                         time.sleep(10)
                         WebDriverWait(driver, 10).until(EC.staleness_of(view_summary_button))  # Wait for page reload
@@ -206,6 +210,17 @@ def gst_login(username, password, index, driver):
 
         time.sleep(7)
 
+        # Check for "Remind me later" button
+        try:
+            remind_me_later_button = WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.XPATH, "//a[contains(@class, 'btn btn-primary') and contains(text(), 'Remind me later')]"))
+            )
+            driver.execute_script("arguments[0].click();", remind_me_later_button)
+            print("Clicked 'Remind me later' button")
+            time.sleep(3)  # Wait for any modal to close or page to update
+        except:
+            print("'Remind me later' button not found, proceeding to dashboard.")
+
         # Navigate to the dashboard
         dashboard_link = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((By.CSS_SELECTOR, '[title="Return Dashboard"]'))
@@ -237,29 +252,60 @@ def gst_login(username, password, index, driver):
         driver.execute_script("arguments[0].click();", logout_link)
         print("Clicked Logout link")
 
-        # After logout, return to the login page for the next login
-        driver.get("https://services.gst.gov.in/services/login")
-        print("Navigating back to the login page.")
-
     except Exception as e:
         print(f"An error occurred: {e}")
 
-    print("Browser will remain open. Close it manually when done.")
+
+   # print("Browser will remain open. Close it manually when done.")
 
 
-# Function to read the input file and process each line
-with open('input.txt', 'r') as file:
-    # Set up Chrome WebDriver once
-    chrome_options = Options()
-    chrome_options.add_experimental_option("detach", True)
-    driver = webdriver.Chrome(options=chrome_options)
+# Main execution
+def main():
+    # Set the desired download directory (change as needed)
+    download_dir = "/path/to/download/directory"
+    time.sleep(2)
 
-    for line in file:
-        username, password, index = line.strip().split(',')
 
-        # Call gst_login with username, password, and index (use the same driver instance)
-        print(f"Logging in with username: {username} for index {index}")
-        gst_login(username.strip(), password.strip(), index, driver)
+    try:
+        # Read input from file
+        with open('input.txt', 'r') as file:
+            for line in file:
+                username, password, index = line.strip().split(',')
 
-    # Close the driver when all operations are done
-    driver.quit()
+                downloads_path = str(Path.home() / "Downloads")  # Get the Downloads folder
+                user_folder_path = os.path.join(str(Path.home() / "Downloads"), f"{username}_gst")
+
+                print(f"Processing login for user: {username}")
+                if not os.path.exists(user_folder_path):
+                    os.makedirs(user_folder_path)
+                    print(f"Folder created: {user_folder_path}")
+                else:
+                    print(f"Folder already exists: {user_folder_path}")
+
+                    # Create subfolders for 2B and 3B inside the user-specific folder
+                subfolders = ["2B", "3B"]
+                for subfolder in subfolders:
+                    subfolder_path = os.path.join(user_folder_path, subfolder)
+                    if not os.path.exists(subfolder_path):
+                        os.makedirs(subfolder_path)
+                        print(f"Subfolder created: {subfolder_path}")
+                    else:
+                        print(f"Subfolder already exists: {subfolder_path}")
+                prefs = {
+                    "download.default_directory": user_folder_path,
+                    "download.prompt_for_download": False,
+                    "directory_upgrade": True,
+                }
+                chrome_options = Options()
+                chrome_options.add_experimental_option("prefs", prefs)
+                chrome_options.add_experimental_option("detach", True)
+                driver = webdriver.Chrome(options=chrome_options)
+
+                gst_login(username.strip(), password.strip(), int(index), driver)
+                driver.quit()
+    finally:
+        driver.quit()
+        print("Driver closed.")
+
+# Run the script
+main()
