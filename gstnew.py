@@ -11,7 +11,7 @@ import time
 
 def select_options_and_search(driver):
     try:
-        for q_index in range(1):  # Iterate over quarters (adjust range as needed)
+        for q_index in range(4):  # Iterate over quarters (adjust range as needed)
             # Select Financial Year
             fin_dropdown = WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.NAME, "fin"))
@@ -37,7 +37,7 @@ def select_options_and_search(driver):
                 EC.presence_of_element_located((By.NAME, "mon"))
             )
             select_period = Select(period_dropdown)
-            for p_index in range(2):  # Iterate over periods (adjust range as needed)
+            for p_index in range(3):  # Iterate over periods (adjust range as needed)
                 select_period.select_by_index(p_index)
                 selected_period = select_period.first_selected_option.text
                 print(f"Selected period: {selected_period}")
@@ -49,7 +49,7 @@ def select_options_and_search(driver):
                 )
                 search_button.click()
                 print("Clicked Search button")
-                time.sleep(5)
+                time.sleep(7)
 
                 # Handle View Button
                 view_button = WebDriverWait(driver, 10).until(
@@ -66,6 +66,7 @@ def select_options_and_search(driver):
                     driver.execute_script("arguments[0].click();", download_button)
                     print("Clicked DOWNLOAD FILED (PDF) button")
                     driver.back()
+                    time.sleep(3)
                     print("Navigated back to the previous page")
                 except Exception as e:
                     print(f"DOWNLOAD FILED (PDF) button not found: {e}")
@@ -85,12 +86,15 @@ def select_options_and_search(driver):
                         driver.execute_script("arguments[0].click();", download_pdf_button)
                         print("Clicked DOWNLOAD (PDF) button")
                         driver.back()
+                        time.sleep(3)
                         print("Navigated back to the previous page")
                         driver.back()
+                        time.sleep(7)
                         print("Navigated back to the previous page")
                     except Exception as inner_exception:
                         print(f"Error in VIEW SUMMARY workflow: {inner_exception}")
 
+                time.sleep(5)
                 # Ensure elements are reloaded
                 WebDriverWait(driver, 15).until(
                     EC.presence_of_element_located((By.NAME, "fin"))
@@ -135,6 +139,7 @@ def select_options_and_search(driver):
                 )
                 driver.execute_script("arguments[0].click();", download_button)
                 print("Clicked Download button")
+                time.sleep(7)
 
 
 
