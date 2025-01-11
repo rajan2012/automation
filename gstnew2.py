@@ -51,7 +51,7 @@ def select_options_and_search(driver,index):
         #for just first qurarter -0,1 and likewise
         for q_index in range(4):  # Iterate over quarters
             driver.refresh()
-            time.sleep(3)
+            time.sleep(4)
 
             # Select Financial Year
             select_fin = wait_for_dropdown(driver, "fin")
@@ -152,10 +152,11 @@ def select_options_and_search(driver,index):
                 time.sleep(5)
 
                 # Ensure elements are reloaded
+                driver.refresh()
                 select_fin = wait_for_dropdown(driver, "fin")
                 select_fin.select_by_index(1)
                 print("Financial year reset")
-                time.sleep(2)
+                time.sleep(4)
 
                 select_quarter = wait_for_dropdown(driver, "quarter")
                 select_quarter.select_by_index(q_index)
