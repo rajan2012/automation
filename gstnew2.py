@@ -49,8 +49,9 @@ def select_options_and_search(driver,index):
     try:
         #go through all for quarter
         #for just first qurarter -0,1 and likewise
-        for q_index in range(3,4):  # Iterate over quarters
-            time.sleep(2)
+        for q_index in range(4):  # Iterate over quarters
+            driver.refresh()
+            time.sleep(4)
 
             # Select Financial Year
             select_fin = wait_for_dropdown(driver, "fin")
@@ -77,7 +78,7 @@ def select_options_and_search(driver,index):
             #to select one specific month
             #replace by(0,1)-for 1st month
             #1,2 -for second and likewise
-            for p_index in range(2,3):  # Iterate over periods
+            for p_index in range(3):  # Iterate over periods
                 time.sleep(5)
                 select_period.select_by_index(p_index)
                 selected_period = select_period.first_selected_option.text
@@ -108,9 +109,10 @@ def select_options_and_search(driver,index):
                     print(f"Download 2b view for 2023-2024, {selected_quarter}, {selected_period}")
                     time.sleep(4)
                     driver.back()
-                    time.sleep(5)
-                    driver.refresh()
                     time.sleep(10)
+                    driver.refresh()
+                    driver.refresh()
+                    time.sleep(8)
 
                     WebDriverWait(driver, 10).until(EC.staleness_of(download_button))  # Wait for page reload
                     print("Navigated back to the previous page")
@@ -138,9 +140,10 @@ def select_options_and_search(driver,index):
                         WebDriverWait(driver, 10).until(EC.staleness_of(download_pdf_button))  # Wait for page reload
                         print("Navigated back to the previous page")
                         driver.back()
-                        time.sleep(5)
+                        time.sleep(8)
                         driver.refresh()
-                        time.sleep(10)
+                        driver.refresh()
+                        time.sleep(8)
                         WebDriverWait(driver, 10).until(EC.staleness_of(view_summary_button))  # Wait for page reload
                         print("Navigated back to the previous page")
                     except Exception as inner_exception:
@@ -149,10 +152,11 @@ def select_options_and_search(driver,index):
                 time.sleep(5)
 
                 # Ensure elements are reloaded
+                driver.refresh()
                 select_fin = wait_for_dropdown(driver, "fin")
                 select_fin.select_by_index(1)
                 print("Financial year reset")
-                time.sleep(2)
+                time.sleep(4)
 
                 select_quarter = wait_for_dropdown(driver, "quarter")
                 select_quarter.select_by_index(q_index)
