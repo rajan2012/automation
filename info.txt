@@ -4,4 +4,3 @@ username,password,index
 index value can be from 0-3 which select financial year from drop down
 0- is most recent year, which is on top of drop down
 
-#sah_gst123,Kama@1234,2
