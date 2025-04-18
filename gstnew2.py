@@ -49,7 +49,9 @@ def select_options_and_search(driver,index):
     try:
         #go through all for quarter
         #for just first qurarter -0,1 and likewise
-        for q_index in range(4):  # Iterate over quarters
+        #0,1
+        #1,2
+        for q_index in range(0,4):  # Iterate over quarters
             driver.refresh()
             time.sleep(4)
 
@@ -78,7 +80,7 @@ def select_options_and_search(driver,index):
             #to select one specific month
             #replace by(0,1)-for 1st month
             #1,2 -for second and likewise
-            for p_index in range(3):  # Iterate over periods
+            for p_index in range(0,3):  # Iterate over periods
                 time.sleep(5)
                 select_period.select_by_index(p_index)
                 selected_period = select_period.first_selected_option.text
@@ -106,7 +108,7 @@ def select_options_and_search(driver,index):
                     )
                     driver.execute_script("arguments[0].click();", download_button)
                     print("Clicked DOWNLOAD FILED (PDF) button")
-                    print(f"Download 2b view for 2023-2024, {selected_quarter}, {selected_period}")
+                    print(f"Download  view for 2023-2024, {selected_quarter}, {selected_period}")
                     time.sleep(4)
                     driver.back()
                     time.sleep(10)
